@@ -190,6 +190,30 @@ def shape_element(element,file_in):
                 node['node_refs'] = ndref; 
                 node['refCount'] = refCount;
         if labelExists: node['address'] = addrBuild;
+        #return node
+    elif element.tag == "node":
+        # Set up temporary containers for desired pieces of the Way to extract
+        node['file'] = file_in
+        node['type'] = element.tag
+        created = {}
+        for name, value in element.attrib.items():
+            # loop through all name value pairs in the topmost way element to find 
+            # user/created info
+
+            # print '{0}="{1}"'.format(name, value)
+            # -attributes for latitude and longitude should be added to a "pos" array, 
+            if name == "lat":
+                lat=float(value);
+            elif name == "lon":
+                lon=float(value);
+            #- attributes in the CREATED array should be added under a key "created" 
+            elif name == "version" or name == "changeset" or name == "timestamp" or name   == "user" or name == "uid":
+                created[name] = value
+
+            else: node[name] = value
+        if lon !=0 and lat !=0: node['pos'] = [lat,lon]
+        node["created"] = created
+
         return node
     else:
         return None
@@ -228,9 +252,9 @@ def test():
 # NOTE: if you are running this code on your computer, with a larger dataset,  
 # call the process_map procedure with pretty=False. The pretty=True option adds  
 # additional spaces to the output, making it significantly larger. 
-    #process_map('los-angeles_california.osm', False)
-    #process_map('OakPark.osm', False)
-    #process_map('LosAlamos.osm', False)
+    process_map('los-angeles_california.osm', False)
+    process_map('OakPark.osm', False)
+    process_map('LosAlamos.osm', False)
     process_map('santafe.osm', False)
 
 
