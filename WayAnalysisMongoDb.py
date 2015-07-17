@@ -17,23 +17,57 @@ lower = re.compile(r'^([a-z]|_)*$')
 lower_colon = re.compile(r'^([a-z]|_)*:([a-z]|_)*$') 
 problemchars = re.compile(r'[=\+/&<>;\'"\?%#$@\,\. \t\r\n]') 
 
+
 # Regular expression to find street type - last full word in the name
 street_type_re = re.compile(r'\b\S+\.?$', re.IGNORECASE)
 
 # list of spanish Pre-types to look for
 reverseTypes = ["Aquecia","Acequia","Arroyo","Avenida", "Caballo","Calle",
-            "Callecita","Calleja","Callejon", "Camino",
-            "Caminito", "Campo", "Canada","Casa","Corrida","Corte",
+            "Callecita","Calleja","Callejon",
+            "Caltamira","Cam","Camino","CAmino",
+            "Caminito", "Campo", "Canada","Casa",
+            "Cereza","Cii","Cli","Cll","Corrida","Corte",
             "Entrade","Estrasa","Estrada",
             "Hacienda","La","Las","Loma","Monte",
-            "Parque","Pasaje", "Paseo","Placita","Plaza","Plazuela","Pueblo",
-            "Puerto","Ruta", 
+            "Parque","Pasaje", "Paso","Paseo","Placita","Plaza","Plazuela","Pueblo",
+            "Puerto","Ristra", "Ruta", 
             "Senda","Sendero","Sentiero", "Sierra", "Tierra",
-            "Valle","Vereda","Via","Viale","Viejo","Vis","Vista","Vuelta"]
+            "Valle","Vereda","Via","Viale","Viejo","Vis","vis","Vista","Vuelta"]
 
 # list of 2 word types to look for
 twoWordTypes = ["County Road","El Camino","State Route"]
 
+# list of street names to fix
+mapping = { "Ave":"Avenue",
+            "Blvd":"Boulevard",
+            "Caltamira":"Calle Altimira Court",
+            "Cam":"Camino",
+            "CAmino ":"Camino",
+            "Cereza":"Plaza Rojo",
+            "Cii":"Calle",
+            "Cli":"Calle",
+            "Cll":"Calle",
+            "DR ":"Drive",
+            "Dr":"Drive",
+            "Entrade":"Entrada",
+            "Ln":"Lane",
+            "Paso":"Paseo",
+            "Rd":"Road",
+            "Ristra":"Ristra Plaza",
+            "St": "Street",
+            "Vis":"Via",
+            "vis":"Vista",
+            }
+fixed = 0
+
+def update_name(name, mapping):
+    # This function looks up a passed in street type and replaces it with one from the array called mapping
+    global fixed
+    if name in mapping:
+        fixed = fixed + 1
+        print ("{} - found : {}, replaced with: {}").format(fixed,name,mapping[name])
+        name = name.replace(name, mapping[name])
+    return name
 
 def determineStreetType(street_name):
     # function takes a street name and first splits it into words so it can test
@@ -62,7 +96,9 @@ def determineStreetType(street_name):
             street_type = ""
         #if you just need a list of unexpected streets uncomment the following
         #if street_type not in expected:
-    return(street_type, SpanishInd)
+    # take the street type and look it up and replace it if found in mapping array
+    better_name = update_name(street_type, mapping)
+    return(better_name, SpanishInd)
 
 
 def shape_element(element,file_in):
@@ -192,11 +228,10 @@ def test():
 # NOTE: if you are running this code on your computer, with a larger dataset,  
 # call the process_map procedure with pretty=False. The pretty=True option adds  
 # additional spaces to the output, making it significantly larger. 
-    process_map('los-angeles_california.osm', False)
-    process_map('OakPark.osm', False)
-    process_map('LosAlamos.osm', False)
+    #process_map('los-angeles_california.osm', False)
+    #process_map('OakPark.osm', False)
+    #process_map('LosAlamos.osm', False)
     process_map('santafe.osm', False)
-
 
 
 if __name__ == "__main__":
